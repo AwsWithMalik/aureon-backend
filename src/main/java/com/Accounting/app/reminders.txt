@@ -1,0 +1,43 @@
+Reminders / pending implementation tasks
+=======================================
+
+1. Team access permission model
+- Email invitation delivery and token acceptance are implemented in Java.
+- Next production step: decide whether team membership should remain in `app_settings_team_members` or move to a first-class table that is enforced by authorization checks across dashboard resources.
+
+
+3. Receipt-to-transaction matching
+- Add backend matching policy for linking uploaded receipts to transactions when the user does not explicitly connect them.
+- Candidate signals: amount proximity, merchant similarity, transaction date proximity, account overlap, and duplicate suppression.
+
+4. Flag policy cleanup pass
+- Continue moving page flags into explicit backend policy helpers:
+  - overview review queue priority / tone / icon
+  - expense detail status
+  - portfolio / dividends connected-account status
+  - any remaining financial-health labels that need stricter frontend contract alignment
+
+5. Overview summary policy
+- Replace heuristic overview AI summary text with a dedicated backend summary policy once the final business rules are clear.
+- Review whether review-queue item generation should eventually consider receipt match confidence and extraction outcomes from Python.
+
+6. Expense breakdown receipt confidence
+- When Python starts returning receipt match confidence, feed that into expense-detail status and highlight logic.
+- `matched_receipt` should eventually distinguish explicit user match from confident automatic match if the frontend needs that detail later.
+
+7. Investment sync state refinement
+- Item-level investment sync markers are now persisted on `plaid_item`.
+- Next refinement is account-level sync state if you need different statuses per investment account inside the same Plaid item.
+- Revisit investment transaction history status once future dividend events, partial failures, or reconciliation states are modeled.
+
+8. Banking account sync state refinement
+- Accounts page now uses explicit backend health rules, but banking sync freshness still comes from account/transaction timestamps.
+- If you want production-grade banking account status, persist banking sync-attempt / success / failure markers on `plaid_item` or per account, the same way investment sync is now tracked.
+
+
+put everything in a docker container and run it on docker
+
+upload to the cloud and build using terraform
+
+write read me on the entire app and upload it to github
+

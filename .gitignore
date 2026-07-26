@@ -1,0 +1,67 @@
+# Build output and generated reports
+target/
+build/
+out/
+coverage/
+*.class
+*.jar
+*.war
+*.ear
+*.hprof
+hs_err_pid*
+
+# Runtime data and logs
+uploads/
+logs/
+*.log
+*.log.*
+*.pid
+
+# Local environment configuration and credentials
+.env
+.env.*
+!.env.example
+src/main/resources/application.properties
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+.aws/
+
+# Local Plaid development fixtures
+src/main/resources/plaid-samples/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+*.mv.db
+*.trace.db
+
+# Maven wrapper cache (the wrapper scripts and configuration stay tracked)
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE and editor files
+.idea/
+*.iws
+*.iml
+*.ipr
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+.apt_generated/
+.vscode/
+
+# Local tooling and operating-system metadata
+.agents/
+.wrangler/
+.DS_Store
+Thumbs.db
+Desktop.ini
+src/main/java/com/Accounting/app/reminders.txt
+src/main/java/com/Accounting/app/workOrder
+examples/

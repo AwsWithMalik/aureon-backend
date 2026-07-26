@@ -1,0 +1,217 @@
+ we have to add diffent flages to the backend for the frontend to you right? what are they and what models or dtos do we have to modify
+
+
+• Yes. The frontend is relying on a set of backend flags/status fields to drive UI state. Some already exist, some are inferred, and some should become
+  explicit instead of being guessed.
+
+  The important ones are these.
+
+  Transactions
+  You already have most of this, but these flags matter directly:
+
+  - status
+      - expected values: categorized, to_review, pending, excluded
+
+  - includedInCashFlow
+      - boolean
+
+  - type
+      - expected values: income, expense, transfer
+
+  What to modify:
+
+  - Transaction
+      - today includedInCashFlow and notes live in metadata
+      - better model:
+          - add includedInCashFlow: Boolean
+          - add notes: String
+
+  - DTOs:
+      - src/main/java/com/Accounting/app/dashboard/dto/TransactionsPageResponse.java
+      - patch request DTO already exists:
+          - src/main/java/com/Accounting/app/dashboard/dto/TransactionUpdateRequest.java
+
+  Uploaded files / receipt workflow
+  Frontend is using file lifecycle flags heavily.
+
+  Needed flags:
+
+  - status
+      - expected values: uploaded, processing, extracted, needs review
+
+  - fileType
+      - expected values: image, pdf, spreadsheet
+
+  - documentType
+      - backend-facing: RECEIPT, SPREADSHEET, INVOICE, TAX_DOCUMENT, OTHER
+
+  - previewUrl
+  - fileUrl
+
+  What to modify:
+
+  - UploadedFile
+      - keep status, but normalize values to frontend contract
+      - add stronger explicit fields if you want less metadata parsing:
+          - merchantName
+          - documentDate
+          - extractedAmount
+          - extractedCategory
+          - confidence
+          - taxRelevance
+          - maybe processingJobId
+
+  - DTOs:
+      - whatever DTO powers /api/dashboard/files and upload responses
+      - likely src/main/java/com/Accounting/app/files/dto/UploadedFileDto.java and upload response DTOs
+
+  Linked institutions
+  Frontend wants connection-health flags, not just raw Plaid item data.
+
+  Needed flags:
+
+  - syncStatus
+      - healthy, limited_access, needs_reconnect, syncing
+
+  - productsEnabled[].enabled
+      - boolean
+
+  - connectionStatus
+      - display string like Healthy
+
+  - metrics flags are numeric, but statuses drive the UI
+
+  What to modify:
+
+  - PlaidItem
+      - add explicit fields if you want this stable:
+          - syncStatus
+          - lastSuccessfulSyncAt
+          - lastSyncAttemptAt
+          - needsReconnect
+
+  - DTOs:
+      - src/main/java/com/Accounting/app/dashboard/dto/LinkedInstitutionsPageResponse.java
+
+  Team access
+  Flags here are simple but should be explicit.
+
+  Needed flags:
+
+  - member role
+      - owner, admin, accountant, member, viewer
+
+  - member status
+      - active, invited, disabled
+
+  - invitation status
+      - pending, accepted, expired, revoked
+
+  What to modify:
+
+  - AppSettingsTeamMember
+      - already has role, status
+
+  - TeamInvitation
+      - already has role, status
+
+  - no major structural change needed unless you want accepted invites to become first-class team members in a real table
+
+  Overview review queue
+  Frontend uses these flags for badges and icons:
+
+  - priority
+      - High, Medium, Low
+
+  - tone
+      - examples: indigo, green, rose, amber
+
+  - icon
+      - examples: receipt, fileText, alertTriangle, sparkles
+
+  What to modify:
+
+  - DTO only:
+      - src/main/java/com/Accounting/app/dashboard/dto/OverviewPageResponse.java
+
+  - no entity change required unless review items become persistent workflow records
+
+  Financial health / goals
+  Needed flags:
+
+  - goal status
+      - on_track, needs_attention
+
+  - alert severity
+      - warning, info, success
+
+  What to modify:
+
+  - DTOs only unless goals become editable persistent records
+
+  Expense breakdown
+  Needed flags:
+
+  - expenseDetails[].status
+      - categorized, matched_receipt, needs_review
+
+  What to modify:
+
+  - DTO only right now
+  - if you want this cleaner, add explicit linkage state between UploadedFile and Transaction
+
+  Dividends / portfolio / holdings
+  Mostly numeric, but a few status flags matter:
+
+  - connectedAccounts[].status
+      - synced, syncing, needs_attention
+
+  - dividend history status
+      - currently things like posted
+
+  What to modify:
+
+  - mostly DTOs
+  - possibly PlaidItem / account sync fields if you want real sync-health state
+
+  Tax documents page
+  This is the big missing one if you build it next.
+
+  Needed flags:
+
+  - document status
+      - page currently uses values like Ready, Needs Review, Processing, Missing Info
+
+  - file type
+      - pdf, excel
+
+  - checks severity/count state
+
+  What to modify:
+
+  - either extend UploadedFile for tax docs, or create a dedicated TaxDocument entity
+  - if you want this page done cleanly, I would create:
+      - TaxDocument
+      - TaxDocumentStatus
+      - maybe TaxDocumentCheck
+
+
+
+  That is the pattern we should keep using elsewhere.
+
+  On the upload/receipt point: agreed.
+  For now:
+
+  - Java should determine:
+      - file status when it can
+      - file type
+      - preview/file URLs
+
+  - Python should later return:
+      - extracted
+      - extracted fields
+      - matchConfidence
+      - probable transaction match candidates
+
+  And later we should add a backend receipt-matching policy that can associate uploaded files to transactions even when the user does not explicitly
+  connect them.

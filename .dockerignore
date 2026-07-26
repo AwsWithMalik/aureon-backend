@@ -1,0 +1,44 @@
+# VCS and workspace metadata
+.git/
+.github/
+.agents/
+.codex/
+
+# IDE/editor files
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+
+# Local secrets and environment
+.env
+.env.*
+!.env.example
+
+# Build output
+target/
+build/
+dist/
+out/
+
+# Runtime/generated files
+uploads/
+logs/
+*.log
+spring-boot-run.*.log
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+Dockerfile
+
+# Local docs/samples not needed in the image
+HELP.md
+examples/
+src\main\java\com\Accounting\app\reminders.txt
+src\main\java\com\Accounting\app\workOrder

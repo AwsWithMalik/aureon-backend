@@ -1,0 +1,50 @@
+services:
+  frontend:
+    build:
+      context: ..\testing-accounting
+    environment:
+      VITE_BACKEND_PROXY_TARGET: http://backend:8080
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      MALWARE_SCAN_HOST: clamav
+    depends_on:
+      - postgres
+      - ai-layer
+      - clamav
+
+  ai-layer:
+    build:
+      context: ../ai-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  clamav:
+    image: clamav/clamav:stable
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
