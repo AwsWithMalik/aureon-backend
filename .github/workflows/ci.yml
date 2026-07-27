@@ -30,10 +30,10 @@ jobs:
           cache: maven
 
       - name: Run tests
-        run: ./mvnw test
+        run: bash ./mvnw test
 
       - name: Package application
-        run: ./mvnw package -DskipTests
+        run: bash ./mvnw package -DskipTests
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
